@@ -1,4 +1,5 @@
-# The main objectif of this project is to compare a basic approach to deep neural network model apprach its about classifying texts into 14 classes. 
+# Project utility 
+The main objective of this project is to compare a basic approach to deep neural network model approach applaying to a texts classification problem  (14 classes)
 ## author 
 Hichem MAIZA 
 ## Acknoldgement:
