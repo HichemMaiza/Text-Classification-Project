@@ -1,6 +1,6 @@
 import pandas as pd 
 import numpy as np 
-
+import tensorflow as tf
 from tensorflow.python.framework import ops
 
 data_train = pd.read_pickle('data_train')
@@ -59,8 +59,7 @@ batchSize = 64
 lstmUnits = 64
 #tches(X, Y, mini_batch_size = 64, seed = 0)iterations = 2
 
-
-
+# compute random batches
 def random_batches(X, Y, mini_batch_size = 64, seed = 0) :
     import math
     import numpy as np
@@ -89,56 +88,40 @@ def random_batches(X, Y, mini_batch_size = 64, seed = 0) :
 
 a = random_batches(ids, labels, mini_batch_size = 64, seed = 0) 
 t = random_batches(ids_test, labels_test, mini_batch_size = 64, seed = 0)
-import tensorflow as tf
 
-
-tf.reset_default_graph()
-
-ops.reset_default_graph()
-
+# define placeholder
 labels = tf.placeholder(tf.float32, [None, numClasses])
 input_data = tf.placeholder(tf.int32, [None, maxSeqLength])
-
-
-
+# define embeddings 
 data = tf.Variable(tf.zeros([batchSize, maxSeqLength, numDimensions]),dtype=tf.float32)
 data = tf.nn.embedding_lookup(wordVectors,input_data)
-
+# define model architecture
 lstmCell = tf.contrib.rnn.BasicLSTMCell(lstmUnits)
 lstmCell = tf.contrib.rnn.DropoutWrapper(cell=lstmCell, output_keep_prob=0.75)
 value, _ = tf.nn.dynamic_rnn(lstmCell, data, dtype=tf.float32)
-
 weight = tf.Variable(tf.truncated_normal([lstmUnits, numClasses]))
 bias = tf.Variable(tf.constant(0.1, shape=[numClasses]))
 value = tf.transpose(value, [1, 0, 2])
 last = tf.gather(value, int(value.get_shape()[0]) - 1)
+# calculate accuracy using correct prediction
 prediction = (tf.matmul(last, weight) + bias)
-
-
 correctPred = tf.equal(tf.argmax(prediction,1), tf.argmax(labels,1))
 accuracy = tf.reduce_mean(tf.cast(correctPred, tf.float32))
-
-
-
+# define cost function (a cross entroy loss function)
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=labels))
 optimizer = tf.train.AdamOptimizer().minimize(loss)
-
-
-
-
-
+# begin tensorflow session
 sess = tf.InteractiveSession()
 saver = tf.train.Saver()
 sess.run(tf.global_variables_initializer())
 seed = 0
+# tain the model
 for epoch in range(3):
     epoch_cost = 0. ; num_minibatches = int(len(int_labels) / 64)
     #num_minibatches = int(len(int_labels) / minibatch_size)       
     for minibatch in a:
         # Select a minibatch
         (minibatch_X, minibatch_Y) = minibatch
-
-
         _ , minibatch_cost = sess.run([optimizer, loss], feed_dict={input_data: minibatch_X, labels: minibatch_Y})
         epoch_cost += minibatch_cost / num_minibatches
 
@@ -146,13 +129,10 @@ for epoch in range(3):
     if (epoch % 100 == 0 and epoch != 0):
         save_path = saver.save(sess, "pretrained_lstm.ckpt", global_step=epoch)
         print("saved to %s" % save_path)
-
+# evalute the model
+# calculate precison and recall of the system 
 from sklearn.metrics import precision_score, recall_score
 y_pred = tf.argmax(prediction, 1) 
-
-
-
-
 val_accuracy, y_pred = sess.run([accuracy, y_pred], {input_data:ids_test, labels: labels_test})
 y_true = np.argmax(labels_test, 1)
 print("Accuracy manu: ", val_accuracy)    
