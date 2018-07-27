@@ -6,7 +6,8 @@ The main objective of this project is to compare a basic approach to deep neural
 
 ## Author 
 Hichem MAIZA
-## Acknoldgement:
+## Acknoldgements:
 - Thank you google for tensorflow
+- Thank you Dr. Nicolas Hernandez for datasets
 - Thank you Prof. Andrew ng for your great courses
 
