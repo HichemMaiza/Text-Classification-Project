@@ -9,11 +9,4 @@ Hichem MAIZA
 ## Acknoldgement:
 - Thank you google for tensorflow
 - Thank you Prof. Andrew ng for your great courses
-=======
-## Author 
-Hichem MAIZA 
-## Acknoldgement:
-- Thank you google for tensorflow 
-- Thank you Dr. Nicolas Hernandez for the datasets
-- Thank you Prof. Andrew ng for your great courses
 
